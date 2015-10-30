@@ -239,6 +239,7 @@ private let MatchLimitAll = kSecMatchLimitAll
 
 /** Return Type Key Constants */
 private let ReturnData = kSecReturnData as String
+private let ReturnReference = kSecReturnPersistentRef as String
 private let ReturnAttributes = kSecReturnAttributes as String
 
 /** Value Type Key Constants */
@@ -448,12 +449,13 @@ public class Keychain {
         }
         return string
     }
+    
 
-    public func getData(key: String) throws -> NSData? {
+    public func getData(key: String, ofType: String = ReturnData) throws -> NSData? {
         var query = options.query()
 
         query[MatchLimit] = MatchLimitOne
-        query[ReturnData] = true
+        query[ofType] = true
 
         query[AttributeAccount] = key
 
@@ -471,6 +473,13 @@ public class Keychain {
         default:
             throw securityError(status: status)
         }
+    }
+    
+    public func getPersistentRef(key: String) throws -> NSData? {
+        guard let data = try getData(key, ofType: ReturnReference) else {
+            return nil
+        }
+        return data
     }
 
     // MARK:
